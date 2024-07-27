@@ -1,22 +1,27 @@
-FROM ubuntu:focal
+# Use Ubuntu as the base image
+FROM ubuntu:24.10
 
-RUN apt-get update
-RUN apt-get install -y curl
-RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
-RUN apt-get upgrade -y
-RUN apt-get install -y nodejs
+# Install curl, git, and Node.js
+RUN apt-get update && \
+    apt-get install -y curl git && \
+    curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN apt-get install git -y
-
+# Set the working directory
 WORKDIR /home/app
 
+# Copy application files
 COPY main.sh main.sh
 COPY script.js script.js
-COPY package*.json .
+COPY package*.json ./
 
+# Install npm dependencies
 RUN npm install
 
+# Make the main.sh script executable
 RUN chmod +x main.sh
-RUN chmod +x script.js
 
-ENTRYPOINT [ "/home/app/main.sh" ]
+# Set the default command to run the script
+ENTRYPOINT ["/home/app/main.sh"]

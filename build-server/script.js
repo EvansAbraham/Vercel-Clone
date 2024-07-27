@@ -1,11 +1,15 @@
-require('dotenv').config();
-
 import { exec } from 'child_process';
-import { join } from 'path';
-import { readdirSync, lstatSync, createReadStream } from 'fs';
+import path from 'path';
+import fs from 'fs';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { lookup } from 'mime-types';
+import mime from 'mime-types';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
 
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const s3Client = new S3Client({
     region: process.env.REGION,
@@ -13,47 +17,48 @@ const s3Client = new S3Client({
         accessKeyId: process.env.ACCESS_KEY,
         secretAccessKey: process.env.SECRET_ACCESS_KEY,
     }
-})
+});
 
 const PROJECT_ID = process.env.PROJECT_ID;
 
-async function init(){
-    console.log('Executing the script.js using Docker!')
-    const outDirPath = join(__dirname, 'output')
+async function init() {
+    console.log('Build Started');
+    const outDirPath = path.join(__dirname, 'output');
 
-    const commandExecution = exec(`cd ${outDirPath} && npm install && npm run build`)
+    const p = exec(`cd ${outDirPath} && npm install && npm run build`);
 
-    commandExecution.stdout.on('data', function (data){
-        console.log(data.toString())
-    })
-    
-    commandExecution.stdout.on('error', function (data){
-        console.log('Error', data.toString())
-    })
+    p.stdout.on('data', function (data) {
+        console.log(data.toString());
+    });
 
-    commandExecution.on('close', async function(){
-        console.log('Build Complete!')
-        const distFolderPath = join(__dirname, 'output', 'dist')
-        const distFolderContents = readdirSync(distFolderPath, {recursive: true})
+    p.stderr.on('data', function (data) {
+        console.log('Error', data.toString());
+    });
 
-        for (const filePath of distFolderContents){
-            if (lstatSync(filePath).isDirectory()) continue;
+    p.on('close', async function () {
+        console.log('Build Complete');
+        const distFolderPath = path.join(__dirname, 'output', 'dist');
+        const distFolderContents = fs.readdirSync(distFolderPath, { withFileTypes: true });
 
-            console.log('Uploading!', filePath)
-        
+        for (const dirent of distFolderContents) {
+            const filePath = path.join(distFolderPath, dirent.name);
+            if (dirent.isDirectory()) continue;
+
+            console.log('Uploading!', filePath);
+
             const command = new PutObjectCommand({
                 Bucket: process.env.BUCKET_NAME,
-                Key: `__outputs/${PROJECT_ID}/${filePath}`,
-                Body: createReadStream(filePath),
-                ContentType: lookup(filePath),
-            })
+                Key: `__outputs/${PROJECT_ID}/${dirent.name}`,
+                Body: fs.createReadStream(filePath),
+                ContentType: mime.lookup(filePath),
+            });
 
-            await s3Client.send(command)
-            console.log('Uploaded!', filePath)
+            await s3Client.send(command);
+            console.log('Uploaded!', filePath);
         }
 
-        console.log('Done!')
-    })
+        console.log('Done!');
+    });
 }
 
-init()
+init();
