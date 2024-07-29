@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 
 dotenv.config();
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -21,8 +22,9 @@ const s3Client = new S3Client({
 
 const PROJECT_ID = process.env.PROJECT_ID;
 
+
 async function init() {
-    console.log('Build Started');
+    console.log('Executing script.js....');
     const outDirPath = path.join(__dirname, 'output');
 
     const p = exec(`cd ${outDirPath} && npm install && npm run build`);
