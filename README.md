@@ -121,8 +121,8 @@ If the Dockerfile is pushed to Amazon ECR (Elastic Container Registry), it simpl
 
 Performance testing was conducted using Artillery. The results of the tests can be found in the `performance/reports` directory:
 
-- **JSON Report**: [performance/reports/report.json](performance/reports/report.json)
-- **HTML Report**: [performance/reports/report.html](performance/reports/report.html)
+- **JSON Report**: [reports/report.json](reports/report.json)
+- **HTML Report**: [reports/report.html](reports/report.html)
 
 **Test Summary:**
 - **Number of Requests:** 600
