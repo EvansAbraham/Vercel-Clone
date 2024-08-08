@@ -1,0 +1,18 @@
+config:
+  target: 'http://localhost:9000'
+  phases:
+    - duration: 120  # Test duration (2 minutes)
+      arrivalRate: 5  # Number of new virtual users per second
+  defaults:
+    timeout: 5000  # Set a global timeout of 5 seconds for all requests
+    retry: 3  # Retry failed requests up to 3 times
+
+scenarios:
+  - flow:
+      - post:
+          url: '/project'
+          json:
+            gitUrl: 'https://github.com/EvansAbraham/test-project'
+          capture:
+            - json: '$.data.url'
+              as: 'deployedUrl'
