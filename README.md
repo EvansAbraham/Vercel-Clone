@@ -38,6 +38,7 @@ S3_BUCKET_NAME=your-s3-bucket-name
 - **api-server:** Contains the API server code that automates the build server's work.
 - **build-server:** Handles cloning repositories, building them, and uploading to S3. Only needs to be set up once using Docker.
 - **s3-reverse-proxy:** Fetches from S3 and deploys the website.
+- **performance/reports:** Contains performance test reports in JSON and HTML formats.
 
 ### Installation
 
@@ -115,6 +116,20 @@ If the Dockerfile is pushed to Amazon ECR (Elastic Container Registry), it simpl
       }
   }
   ```
+
+### Performance Testing
+
+Performance testing was conducted using Artillery. The results of the tests can be found in the `performance/reports` directory:
+
+- **JSON Report**: [performance/reports/report.json](performance/reports/report.json)
+- **HTML Report**: [performance/reports/report.html](performance/reports/report.html)
+
+**Test Summary:**
+- **Number of Requests:** 600
+- **HTTP Status Code 200:** 600
+- **Data Transferred:** 71,002 bytes
+- **Virtual Users Completed:** 600
+- **Virtual Users Created:** 600
 
 ### Contributing
 Contributions are welcome! Please submit a pull request or open an issue to discuss your ideas.
