@@ -34,14 +34,12 @@ S3_BUCKET_NAME=your-s3-bucket-name
 ```
 
 ### Directory Structure
-
 - **api-server:** Contains the API server code that automates the build server's work.
 - **build-server:** Handles cloning repositories, building them, and uploading to S3. Only needs to be set up once using Docker.
 - **s3-reverse-proxy:** Fetches from S3 and deploys the website.
 - **performance/reports:** Contains performance test reports in JSON and HTML formats.
 
 ### Installation
-
 Install dependencies for all three directories:
 
 1. **API Server:**
@@ -63,14 +61,12 @@ Install dependencies for all three directories:
    ```
 
 ### Build Server Setup
-
 The build server uses a Docker container to clone repositories, build them, and upload the built assets to S3. Once the Docker container is set up, it does not need to run continuously.
 
 #### Note
 If the Dockerfile is pushed to Amazon ECR (Elastic Container Registry), it simplifies the process of running the program.
 
 #### Building the Docker Image
-
 1. Navigate to the `build-server` directory:
    ```bash
    cd build-server
@@ -84,23 +80,20 @@ If the Dockerfile is pushed to Amazon ECR (Elastic Container Registry), it simpl
 3. Push the Docker image to ECR (optional but recommended for ease of deployment).
 
 ### Starting the Servers
-
 1. Start the API server:
    ```bash
    cd api-server
-   npm start
+   node index.js
    ```
 
 2. Start the S3 reverse proxy server:
    ```bash
    cd s3-reverse-proxy
-   npm start
+   node index.js
    ```
 
 ### API Endpoints
-
 #### Create a new project
-
 - **URL:** `/project`
 - **Method:** `POST`
 - **Body Parameters:**
@@ -118,7 +111,6 @@ If the Dockerfile is pushed to Amazon ECR (Elastic Container Registry), it simpl
   ```
 
 ### Performance Testing
-
 Performance testing was conducted using Artillery. The results of the tests can be found in the `reports` directory:
 
 - **JSON Report**: [reports/report.json](reports/report.json)
@@ -131,5 +123,5 @@ Performance testing was conducted using Artillery. The results of the tests can 
 - **Virtual Users Completed:** 600
 - **Virtual Users Created:** 600
 
-### Contributing
-Contributions are welcome! Please submit a pull request or open an issue to discuss your ideas.
+### Automated Testing
+Jest was utilized for automated testing to ensure the reliability of the API. The tests validated multiple scenarios, achieving a **100% pass rate** across all cases.
