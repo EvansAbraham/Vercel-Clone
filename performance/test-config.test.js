@@ -1,15 +1,15 @@
 const request = require('supertest');
-const app = 'http://localhost:9000'; // Your base URL
+const app = 'http://localhost:9000'; 
 
 describe('Load Test', () => {
-  const requestsPerSecond = 5; // Requests to be sent per second
-  const duration = 120; // Total test duration in seconds
+  const requestsPerSecond = 5;
+  const duration = 120; 
 
   it('should perform a load test', async () => {
     const startTime = Date.now();
-    const endTime = startTime + duration * 1000; // Calculate end time based on duration
+    const endTime = startTime + duration * 1000;
 
-    const makeRequests = async () => { // Encapsulate request logic in a function
+    const makeRequests = async () => {
       const promises = [];
       
       for (let i = 0; i < requestsPerSecond; i++) {
@@ -19,20 +19,18 @@ describe('Load Test', () => {
             .send({ gitUrl: 'https://github.com/EvansAbraham/test-project' })
             .then(response => {
               expect(response.status).toBe(200);
-              const deployedUrl = response.body.data.url; // Adjust based on your response structure
-              return deployedUrl; // Return the URL for logging
+              const deployedUrl = response.body.data.url;
+              return deployedUrl;
             })
             .catch(error => {
               console.error('Request failed:', error.message);
-              return null; // Return null in case of an error
+              return null;
             })
         );
       }
 
-      // Wait for all requests in this batch to complete
       const results = await Promise.all(promises);
 
-      // Log all successfully deployed URLs
       results.forEach(deployedUrl => {
         if (deployedUrl) {
           console.log('Deployed URL:', deployedUrl);
@@ -40,33 +38,31 @@ describe('Load Test', () => {
       });
     };
 
-    // Main loop to send requests until the duration is reached
-    while (Date.now() < endTime) { // Loop until the calculated end time
-      await makeRequests(); // Send requests
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before the next batch
+    while (Date.now() < endTime) {
+      await makeRequests();
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
-  }, 400000); // Increase the timeout to 5 minutes
+  }, 400000);
 
-  // Additional Test Cases
 
   it('should return 400 for invalid git URL', async () => {
     const response = await request(app)
       .post('/project')
-      .send({ gitUrl: 'invalid-url' }); // Invalid URL format
-    expect(response.status).toBe(400); // Expect a 400 status code for invalid input
-    expect(response.body).toHaveProperty('error'); // Expect an error property in the response
+      .send({ gitUrl: 'invalid-url' });
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error');
   });
 
   it('should return 400 for missing git URL', async () => {
     const response = await request(app)
       .post('/project')
-      .send({}); // Missing gitUrl
-    expect(response.status).toBe(400); // Expect a 400 status code for missing input
-    expect(response.body).toHaveProperty('error'); // Expect an error property in the response
+      .send({});
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error');
   });
 
   it('should handle high load without crashing', async () => {
-    const highLoadRequests = 100; // Test with 100 requests
+    const highLoadRequests = 100;
     const promises = Array.from({ length: highLoadRequests }).map(() =>
       request(app)
         .post('/project')
@@ -79,7 +75,7 @@ describe('Load Test', () => {
         })
     );
 
-    await Promise.all(promises); // Send all requests at once
+    await Promise.all(promises);
   });
 
   it('should limit responses to 200 status code', async () => {
@@ -88,17 +84,17 @@ describe('Load Test', () => {
         .post('/project')
         .send({ gitUrl: 'https://github.com/EvansAbraham/test-project' })
         .then(response => {
-          expect(response.status).toBe(200); // Expect all responses to have 200 status code
+          expect(response.status).toBe(200);
         })
         .catch(error => {
           console.error('Request failed:', error.message);
         })
     );
 
-    await Promise.all(promises); // Send all requests in parallel
+    await Promise.all(promises);
   });
 
   afterAll(async () => {
-    // Clean up resources, close any open connections, etc.
+   
   });
 });

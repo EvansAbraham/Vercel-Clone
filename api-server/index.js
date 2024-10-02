@@ -33,7 +33,6 @@ app.use(express.json());
 app.post('/project', async (req, res) => {
     const { gitUrl } = req.body;
 
-    // Validate gitUrl
     if (!gitUrl) {
         return res.status(400).json({ error: 'Missing git URL' });
     }
