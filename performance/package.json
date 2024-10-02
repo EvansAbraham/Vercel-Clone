@@ -1,0 +1,28 @@
+{
+  "name": "performance",
+  "version": "1.0.0",
+  "main": "test-config.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-html-reporters": "^3.1.7",
+    "supertest": "^7.0.0"
+  },
+  "jest": {
+    "reporters": [
+      "default",
+      ["jest-html-reporters", {
+        "pageTitle": "Load Test Report",
+        "outputPath": "./reports/test-report.html",
+        "includeFailureMsg": true,
+        "includeConsoleLog": true
+      }]
+    ]
+  }
+}

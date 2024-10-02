@@ -5,8 +5,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const app = express()
-const PORT = 9000
+const app = express();
+const PORT = 9000;
 
 const ecsClient = new ECSClient({
     region: process.env.REGION,
@@ -14,7 +14,7 @@ const ecsClient = new ECSClient({
         accessKeyId: process.env.ACCESS_KEY,
         secretAccessKey: process.env.SECRET_ACCESS_KEY
     }
-})
+});
 
 const config = {
     CLUSTER: process.env.CLUSTER_NAME,
@@ -24,15 +24,30 @@ const config = {
     SUBNETC: process.env.SUBNET_C,
     SECURITYGROUP: process.env.SECURITY_GROUP,
     BUILDER_NAME: process.env.BUILDER_IMAGE,
-}
+};
 
-const DOMAIN_PATH = process.env.DOMAIN
+const DOMAIN_PATH = process.env.DOMAIN;
 
-app.use(express.json())
+app.use(express.json());
 
-app.post('/project' , async (req, res)=>{
-    const { gitUrl } = req.body
-    const projectSlug = generateSlug()
+app.post('/project', async (req, res) => {
+    const { gitUrl } = req.body;
+
+    // Validate gitUrl
+    if (!gitUrl) {
+        return res.status(400).json({ error: 'Missing git URL' });
+    }
+
+    // Basic validation for GitHub URL
+    if (!gitUrl.startsWith('http://') && !gitUrl.startsWith('https://')) {
+        return res.status(400).json({ error: 'Invalid git URL: must start with http:// or https://' });
+    }
+    
+    if (!gitUrl.includes('github.com')) {
+        return res.status(400).json({ error: 'Invalid git URL: must be a GitHub repository URL' });
+    }
+
+    const projectSlug = generateSlug();
 
     const command = new RunTaskCommand({
         cluster: config.CLUSTER,
@@ -40,14 +55,14 @@ app.post('/project' , async (req, res)=>{
         launchType: 'FARGATE',
         count: 1,
         networkConfiguration: {
-            awsvpcConfiguration:{
+            awsvpcConfiguration: {
                 assignPublicIp: 'ENABLED',
                 subnets: [config.SUBNETA, config.SUBNETB, config.SUBNETC],
                 securityGroups: [config.SECURITYGROUP]
             }
         },
-        overrides:{
-            containerOverrides:[
+        overrides: {
+            containerOverrides: [
                 {
                     name: config.BUILDER_NAME,
                     environment: [
@@ -63,11 +78,10 @@ app.post('/project' , async (req, res)=>{
                 }
             ]
         }
-    })
+    });
 
     await ecsClient.send(command);
-    return res.json({ status: 'queued', data: { projectSlug, url: `http://${projectSlug}.${DOMAIN_PATH}` } })
+    return res.json({ status: 'queued', data: { projectSlug, url: `http://${projectSlug}.${DOMAIN_PATH}` } });
+});
 
-})
-
-app.listen(PORT, () => console.log(`API Server is Running in Port ${PORT}`))
+app.listen(PORT, () => console.log(`API Server is Running in Port ${PORT}`));
